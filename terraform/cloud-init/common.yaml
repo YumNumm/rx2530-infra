@@ -1,0 +1,38 @@
+#cloud-config
+# Common cloud-init configuration for all containers
+
+# Update package lists and upgrade packages
+package_update: true
+package_upgrade: true
+
+# Install common packages
+packages:
+  - curl
+  - wget
+  - git
+  - htop
+  - vim
+  - unzip
+  - software-properties-common
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+
+# Configure timezone
+timezone: Asia/Tokyo
+
+# SSH configuration
+ssh_authorized_keys:
+  # Add your SSH public key here
+  # - ssh-rsa AAAAB3NzaC1yc2E... your-key-here
+
+# User configuration (if needed)
+# users:
+#   - name: ubuntu
+#     groups: sudo
+#     shell: /bin/bash
+#     sudo: ['ALL=(ALL) NOPASSWD:ALL']
+
+# Final message
+final_message: "Cloud-init setup completed successfully"

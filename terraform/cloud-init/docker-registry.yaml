@@ -1,0 +1,40 @@
+#cloud-config
+# Docker Registry container configuration
+
+# Include common configuration
+merge_how:
+  - name: list
+    settings: [append]
+  - name: dict
+    settings: [no_replace, recurse_list]
+
+# Update package lists and upgrade packages
+package_update: true
+package_upgrade: true
+
+# Install Docker and Docker Compose
+packages:
+  - docker.io
+  - docker-compose-plugin
+
+# System configuration
+write_files:
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+
+# Run commands after packages are installed
+runcmd:
+  - systemctl enable docker
+  - systemctl start docker
+  - usermod -aG docker ubuntu
+  - mkdir -p /opt/docker-registry
+  - chown -R ubuntu:ubuntu /opt/docker-registry
+
+final_message: "Docker Registry container setup completed"
