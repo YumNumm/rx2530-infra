@@ -1,3 +1,12 @@
+resource "lxd_project" "default" {
+  config = {
+    "features.networks"       = "true"
+    "features.networks.zones" = "true"
+  }
+  description = "Default LXD project"
+  name        = "default"
+  remote      = null
+}
 
 resource "lxd_instance" "loki" {
   allow_restart = false
@@ -7,7 +16,7 @@ resource "lxd_instance" "loki" {
   description = "public-loki (loki.yumnumm.dev)"
   ephemeral   = false
   execs       = null
-  image       = "images:ubuntu/noble/amd64"
+  image       = "ubuntu:24.04"
   limits = {
     cpu = "4"
   }
@@ -23,15 +32,20 @@ resource "lxd_instance" "loki" {
 }
 
 
-resource "lxd_instance" "network" {
-  allow_restart    = false
-  config           = {}
-  description      = "tailscale, cloudflared"
-  ephemeral        = false
-  execs            = null
-  image            = "images:ubuntu/noble/amd64"
-  limits           = {}
-  name             = "network"
+resource "lxd_instance" "docker_registry" {
+  allow_restart = false
+  config = {
+    "raw.idmap"        = "both 1000 1000"
+    "security.nesting" = "true"
+  }
+  description = "harbor (registry.yumnumm.dev)"
+  ephemeral   = false
+  execs       = null
+  image       = "ubuntu:24.04"
+  limits = {
+    memory = "8GiB"
+  }
+  name             = "docker-registry"
   profiles         = ["default"]
   project          = null
   remote           = null
@@ -40,6 +54,14 @@ resource "lxd_instance" "network" {
   timeouts         = null
   type             = "container"
   wait_for_network = true
+  device {
+    name = "disk-device-1"
+    properties = {
+      path   = "/data"
+      source = "/mnt/HDD/container/docker-registry"
+    }
+    type = "disk"
+  }
 }
 
 
@@ -51,7 +73,7 @@ resource "lxd_instance" "ubuntu_desktop" {
   description = null
   ephemeral   = false
   execs       = null
-  image       = "images:ubuntu/noble/amd64"
+  image       = "ubuntu:24.04"
   limits = {
     cpu    = "16"
     memory = "24GiB"
@@ -85,19 +107,15 @@ resource "lxd_instance" "ubuntu_desktop" {
 }
 
 
-resource "lxd_instance" "monitor" {
-  allow_restart = false
-  config = {
-    "raw.idmap"           = "both 1000 1000"
-    "security.nesting"    = "true"
-    "security.privileged" = "true"
-  }
-  description      = "grafana, loki, prometheus, alertmanager, cadvisor, influxdb"
+resource "lxd_instance" "packer_lxd" {
+  allow_restart    = false
+  config           = {}
+  description      = null
   ephemeral        = false
   execs            = null
-  image            = "images:ubuntu/noble/amd64"
+  image            = "ubuntu:24.04"
   limits           = {}
-  name             = "monitor"
+  name             = "packer-lxd"
   profiles         = ["default"]
   project          = null
   remote           = null
@@ -106,14 +124,6 @@ resource "lxd_instance" "monitor" {
   timeouts         = null
   type             = "container"
   wait_for_network = true
-  device {
-    name = "disk-device-2"
-    properties = {
-      path   = "/home/yumnumm/.ssh"
-      source = "/home/yumnumm/.ssh"
-    }
-    type = "disk"
-  }
 }
 
 
@@ -127,7 +137,7 @@ resource "lxd_instance" "media" {
   description      = "smb, gerbera"
   ephemeral        = false
   execs            = null
-  image            = "images:ubuntu/noble/amd64"
+  image            = "ubuntu:24.04"
   limits           = {}
   name             = "media"
   profiles         = ["default"]
@@ -149,75 +159,6 @@ resource "lxd_instance" "media" {
 }
 
 
-resource "lxd_instance" "sandbox" {
-  allow_restart = false
-  config = {
-    "raw.idmap"                 = "both 1000 1000"
-    "security.idmap.isolated"   = "true"
-    "security.nesting"          = "true"
-    "security.protection.shift" = "true"
-  }
-  description      = "wakapi, wikijs"
-  ephemeral        = false
-  execs            = null
-  image            = "images:ubuntu/noble/amd64"
-  limits           = {}
-  name             = "sandbox"
-  profiles         = ["default"]
-  project          = null
-  remote           = null
-  running          = true
-  target           = null
-  timeouts         = null
-  type             = "container"
-  wait_for_network = true
-  device {
-    name = "disk-device-1"
-    properties = {
-      path   = "/home/yumnumm/wakapi"
-      source = "/mnt/HDD/wakapi"
-    }
-    type = "disk"
-  }
-  device {
-    name = "disk-device-2"
-    properties = {
-      path   = "/home/yumnumm/.ssh"
-      source = "/home/yumnumm/.ssh"
-    }
-    type = "disk"
-  }
-  device {
-    name = "disk-device-4"
-    properties = {
-      path   = "/home/yumnumm/wikijs"
-      source = "/mnt/HDD/container/wikijs"
-    }
-    type = "disk"
-  }
-}
-
-
-resource "lxd_instance" "packer_lxd" {
-  allow_restart    = false
-  config           = {}
-  description      = null
-  ephemeral        = false
-  execs            = null
-  image            = "images:ubuntu/noble/amd64"
-  limits           = {}
-  name             = "packer-lxd"
-  profiles         = ["default"]
-  project          = null
-  remote           = null
-  running          = true
-  target           = null
-  timeouts         = null
-  type             = "container"
-  wait_for_network = true
-}
-
-
 resource "lxd_instance" "eqmonitor" {
   allow_restart = false
   config = {
@@ -227,7 +168,7 @@ resource "lxd_instance" "eqmonitor" {
   description = "WIP"
   ephemeral   = false
   execs       = null
-  image       = "images:ubuntu/noble/amd64"
+  image       = "ubuntu:24.04"
   limits = {
     cpu    = "16"
     memory = "64GiB"
@@ -241,6 +182,58 @@ resource "lxd_instance" "eqmonitor" {
   timeouts         = null
   type             = "container"
   wait_for_network = true
+}
+
+
+resource "lxd_instance" "network" {
+  allow_restart    = false
+  config           = {}
+  description      = "tailscale, cloudflared"
+  ephemeral        = false
+  execs            = null
+  image            = "ubuntu:24.04"
+  limits           = {}
+  name             = "network"
+  profiles         = ["default"]
+  project          = null
+  remote           = null
+  running          = true
+  target           = null
+  timeouts         = null
+  type             = "container"
+  wait_for_network = true
+}
+
+
+resource "lxd_instance" "monitor" {
+  allow_restart = false
+  config = {
+    "raw.idmap"           = "both 1000 1000"
+    "security.nesting"    = "true"
+    "security.privileged" = "true"
+  }
+  description      = "grafana, loki, prometheus, alertmanager, cadvisor, influxdb"
+  ephemeral        = false
+  execs            = null
+  image            = "ubuntu:24.04"
+  limits           = {}
+  name             = "monitor"
+  profiles         = ["default"]
+  project          = null
+  remote           = null
+  running          = true
+  target           = null
+  timeouts         = null
+  type             = "container"
+  wait_for_network = true
+  device {
+    name = "disk-device-2"
+    properties = {
+      path   = "/home/yumnumm/.ssh"
+      source = "/home/yumnumm/.ssh"
+    }
+    type = "disk"
+  }
 }
 
 
@@ -294,6 +287,57 @@ resource "lxd_instance" "win11" {
 }
 
 
+
+
+resource "lxd_instance" "sandbox" {
+  allow_restart = false
+  config = {
+    "raw.idmap"                 = "both 1000 1000"
+    "security.idmap.isolated"   = "true"
+    "security.nesting"          = "true"
+    "security.protection.shift" = "true"
+  }
+  description      = "wakapi, wikijs"
+  ephemeral        = false
+  execs            = null
+  image            = "ubuntu:24.04"
+  limits           = {}
+  name             = "sandbox"
+  profiles         = ["default"]
+  project          = null
+  remote           = null
+  running          = true
+  target           = null
+  timeouts         = null
+  type             = "container"
+  wait_for_network = true
+  device {
+    name = "disk-device-1"
+    properties = {
+      path   = "/home/yumnumm/wakapi"
+      source = "/mnt/HDD/wakapi"
+    }
+    type = "disk"
+  }
+  device {
+    name = "disk-device-2"
+    properties = {
+      path   = "/home/yumnumm/.ssh"
+      source = "/home/yumnumm/.ssh"
+    }
+    type = "disk"
+  }
+  device {
+    name = "disk-device-4"
+    properties = {
+      path   = "/home/yumnumm/wikijs"
+      source = "/mnt/HDD/container/wikijs"
+    }
+    type = "disk"
+  }
+}
+
+
 resource "lxd_instance" "tv" {
   allow_restart = false
   config = {
@@ -303,7 +347,7 @@ resource "lxd_instance" "tv" {
   description = null
   ephemeral   = false
   execs       = null
-  image       = "images:ubuntu/noble/amd64"
+  image       = "ubuntu:24.04"
   limits = {
     cpu    = "80"
     memory = "8GiB"
@@ -363,38 +407,5 @@ resource "lxd_instance" "tv" {
       vendorid = "04e6"
     }
     type = "usb"
-  }
-}
-
-
-resource "lxd_instance" "docker_registry" {
-  allow_restart = false
-  config = {
-    "raw.idmap"        = "both 1000 1000"
-    "security.nesting" = "true"
-  }
-  description = "harbor (registry.yumnumm.dev)"
-  ephemeral   = false
-  execs       = null
-  image       = "images:ubuntu/noble/amd64"
-  limits = {
-    memory = "8GiB"
-  }
-  name             = "docker-registry"
-  profiles         = ["default"]
-  project          = null
-  remote           = null
-  running          = true
-  target           = null
-  timeouts         = null
-  type             = "container"
-  wait_for_network = true
-  device {
-    name = "disk-device-1"
-    properties = {
-      path   = "/data"
-      source = "/mnt/HDD/container/docker-registry"
-    }
-    type = "disk"
   }
 }
