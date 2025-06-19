@@ -50,6 +50,20 @@ jobs:
       - name: TFLint
         run: tflint
 
+      # https://github.com/peter-evans/create-pull-request
+      - name: Create PR for update Terraform
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        if: failure()
+        id: cpr
+        with:
+          delete-branch: true
+          commit-message: "chore: Update Terraform"
+          committer: "GitHub Actions <noreply@github.com>"
+          title: "Update Terraform"
+          body: "Update Terraform by GitHub Actions\nby: ${{github.actor}}"
+          labels: "Auto Update"
+          reviewers: ${{ github.actor }}
+
   plan:
     name: Terraform Plan
     needs:
