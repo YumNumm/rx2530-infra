@@ -20,7 +20,7 @@ on:
 jobs:
   lint:
     name: Terraform Lint
-    runs-on: github-actions-runner
+    runs-on: rx2530
     timeout-minutes: 10
     defaults:
       run:
@@ -54,7 +54,7 @@ jobs:
     name: Terraform Plan
     needs:
       - lint
-    runs-on: github-actions-runner
+    runs-on: rx2530
     env:
       MISE_ENV: ci
     timeout-minutes: 10
