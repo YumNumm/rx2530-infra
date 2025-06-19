@@ -37,7 +37,7 @@ jobs:
 
       # https://github.com/jdx/mise-action
       - name: Install Mise dependencies
-        uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
+        uses: jdx/mise-action@5083fe46898c414b2475087cc79da59e7da859e8 # v2.1.11
         with:
           cache: false
 
@@ -50,6 +50,8 @@ jobs:
           timeout_minutes: 10
           custom_instructions: |
             常に日本語で出力するようにしてください。
+          # lxcコマンドを禁止
+          disallowed_tools: Bash(lxc:*)
 
       - name: Extract logs
         id: extract-logs
@@ -57,7 +59,7 @@ jobs:
           # https://github.com/ryoppippi/ccusage
           {
             echo "LOG<<EOL"
-            pnpx ccusage@latest daily
+            pnpm dlx ccusage@latest daily
             echo "EOL"
           } | tee -a $GITHUB_OUTPUT
 
