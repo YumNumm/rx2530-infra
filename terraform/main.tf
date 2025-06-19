@@ -455,7 +455,10 @@ resource "lxd_instance" "nginx" {
   ephemeral   = false
   execs       = null
   image       = "ubuntu:24.04"
-  limits      = {}
+  limits = {
+    cpu    = "1"
+    memory = "256MB"
+  }
   name        = "nginx"
   profiles    = ["default"]
   project     = null
