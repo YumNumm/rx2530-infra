@@ -31,16 +31,54 @@ jobs:
       issues: read
       id-token: write
     steps:
-      - name: Checkout repository
+      # https://github.com/actions/checkout
+      - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # https://github.com/jdx/mise-action
+      - name: Install Mise dependencies
+        uses: jdx/mise-action@5083fe46898c414b2475087cc79da59e7da859e8 # v2.1.11
         with:
-          fetch-depth: 1
+          cache: false
 
-      - name: Setup application runtime & Resolve dependencies
-        uses: ./.github/actions/setup-application-runtime
-
+      # https://github.com/anthropics/claude-code-action
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@3486c33ebfa03d71c98e72621759471c45388443 # v0.0.22
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          timeout_minutes: 10
+          custom_instructions: |
+            常に日本語で出力するようにしてください。
+
+      - name: Extract logs
+        id: extract-logs
+        run: |
+          # https://github.com/ryoppippi/ccusage
+          {
+            echo "LOG<<EOL"
+            pnpx ccusage@latest daily
+            echo "EOL"
+          } | tee -a $GITHUB_OUTPUT
+
+      - name: Comment on Issue
+        if: ${{ github.event_name == 'issue_comment' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number}}
+          BODY: |
+            # 💰️ Claude Code Daily Usage Report
+            ${{ steps.extract-logs.outputs.LOG }}
+        run: gh issue comment "$NUMBER" --body "$BODY"
+
+
+      # https://github.com/thollander/actions-comment-pull-request
+      - name: Comment PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          message: |
+            # 💰️ Claude Code Daily Usage Report
+            ${{ steps.extract-logs.outputs.LOG }}
+          comment-tag: claude-code-usage
