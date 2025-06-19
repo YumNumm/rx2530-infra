@@ -459,14 +459,14 @@ resource "lxd_instance" "nginx" {
     cpu    = "1"
     memory = "256MB"
   }
-  name        = "nginx"
-  profiles    = ["default"]
-  project     = null
-  remote      = null
-  running     = true
-  target      = null
-  timeouts    = null
-  type        = "container"
+  name             = "nginx"
+  profiles         = ["default"]
+  project          = null
+  remote           = null
+  running          = true
+  target           = null
+  timeouts         = null
+  type             = "container"
   wait_for_network = true
   device {
     name = "http"
