@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write  # PR にコメントを投稿するのに必要
   issues: write         # tfcmt が一番最初にRepository labelを追加するのに必要
   id-token: write       # authenticate gcpでworkload identityを使用するときに必要
@@ -52,19 +52,24 @@ jobs:
       - name: TFLint
         run: tflint
 
+      - name: Terraform apply format
+        if: failure()
+        run: terraform fmt
+
+      # 変更が発生した場合は プルリクエストを作成
       # https://github.com/peter-evans/create-pull-request
-      - name: Create PR for update Terraform
+      - name: Create or update pull request
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         if: failure()
-        id: cpr
         with:
           delete-branch: true
-          base: ${{ github.base_ref }}
-          commit-message: "chore: Auto Format: ${{ github.base_ref }}"
+          commit-message: "Auto format"
           committer: "GitHub Actions <noreply@github.com>"
-          title: "Auto Format: ${{ github.base_ref }}"
-          body: "Auto Format: ${{ github.base_ref }} by GitHub Actions\nby: ${{github.actor}}"
-          labels: "Auto Update"
+          base: ${{ github.head_ref }}
+          branch: "auto-format/${{ github.head_ref }}"
+          title: "Auto Format: ${{ github.head_ref }}"
+          body: "Auto Format: ${{ github.head_ref }} by GitHub Actions\nby: ${{github.actor}}"
+          labels: "Auto Format"
           reviewers: ${{ github.actor }}
 
   plan:
