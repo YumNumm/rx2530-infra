@@ -413,9 +413,9 @@ resource "lxd_instance" "tv" {
 resource "lxd_instance" "github_actions_runner" {
   allow_restart = false
   config = {
-    "raw.idmap"        = "both 1000 1000"
-    "security.nesting" = "true"
-    "cloud-init.user-data"   = file("${path.module}/cloud-init/github-actions-runner.yaml")
+    "raw.idmap"            = "both 1000 1000"
+    "security.nesting"     = "true"
+    "cloud-init.user-data" = file("${path.module}/cloud-init/github-actions-runner.yaml")
   }
   description = "GitHub Actions self-hosted runner"
   ephemeral   = false
