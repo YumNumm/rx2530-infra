@@ -50,7 +50,7 @@ jobs:
           timeout_minutes: 10
           custom_instructions: |
             常に日本語で出力するようにしてください。
-          # lxcコマンドを禁止
+          allowed_tools: Bash(*)
           disallowed_tools: Bash(lxc:*)
 
       - name: Extract logs

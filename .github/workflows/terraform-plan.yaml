@@ -59,6 +59,7 @@ jobs:
         id: cpr
         with:
           delete-branch: true
+          base: ${{ github.base_ref }}
           commit-message: "chore: Update Terraform"
           committer: "GitHub Actions <noreply@github.com>"
           title: "Update Terraform"
