@@ -60,10 +60,10 @@ jobs:
         with:
           delete-branch: true
           base: ${{ github.base_ref }}
-          commit-message: "chore: Update Terraform"
+          commit-message: "chore: Auto Format: ${{ github.base_ref }}"
           committer: "GitHub Actions <noreply@github.com>"
-          title: "Update Terraform"
-          body: "Update Terraform by GitHub Actions\nby: ${{github.actor}}"
+          title: "Auto Format: ${{ github.base_ref }}"
+          body: "Auto Format: ${{ github.base_ref }} by GitHub Actions\nby: ${{github.actor}}"
           labels: "Auto Update"
           reviewers: ${{ github.actor }}
 
