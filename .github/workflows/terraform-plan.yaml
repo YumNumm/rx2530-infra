@@ -52,6 +52,10 @@ jobs:
       - name: TFLint
         run: tflint
 
+      - name: Terraform apply format
+        if: failure()
+        run: terraform fmt
+
       # 変更が発生した場合は プルリクエストを作成
       # https://github.com/peter-evans/create-pull-request
       - name: Create or update pull request
