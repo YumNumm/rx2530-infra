@@ -444,3 +444,36 @@ resource "lxd_instance" "github_actions_runner" {
     }
   }
 }
+
+resource "lxd_instance" "nginx" {
+  allow_restart = false
+  config = {
+    "cloud-init.user-data" = file("${path.module}/cloud-init/nginx.yaml")
+  }
+  description = "nginx web server (port 8000)"
+  ephemeral   = false
+  execs       = null
+  image       = "ubuntu:25.04"
+  limits = {
+    cpu    = "1"
+    memory = "1GiB"
+  }
+  name             = "nginx"
+  profiles         = ["default"]
+  project          = null
+  remote           = null
+  running          = true
+  target           = null
+  timeouts         = null
+  type             = "container"
+  wait_for_network = true
+  device {
+    name = "http"
+    type = "proxy"
+    properties = {
+      bind    = "instance"
+      listen  = "tcp:0.0.0.0:8000"
+      connect = "tcp:127.0.0.1:80"
+    }
+  }
+}

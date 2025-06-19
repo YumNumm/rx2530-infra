@@ -1,0 +1,191 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - nginx
+  - curl
+  - language-pack-ja-base
+  - language-pack-ja
+
+timezone: Asia/Tokyo
+locale: ja_JP.UTF-8
+
+users:
+  - name: yumnumm
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_import_id: github:yumnumm
+
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      <!DOCTYPE html>
+      <html lang="ja">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>RX2530 Home Server - nginx Container</title>
+          <style>
+              body {
+                  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                  line-height: 1.6;
+                  margin: 0;
+                  padding: 20px;
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: white;
+                  min-height: 100vh;
+              }
+              .container {
+                  max-width: 800px;
+                  margin: 0 auto;
+                  background: rgba(255, 255, 255, 0.1);
+                  padding: 30px;
+                  border-radius: 15px;
+                  backdrop-filter: blur(10px);
+                  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+              }
+              h1 {
+                  text-align: center;
+                  margin-bottom: 30px;
+                  font-size: 2.5em;
+                  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+              }
+              .info-grid {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                  gap: 20px;
+                  margin-top: 30px;
+              }
+              .info-card {
+                  background: rgba(255, 255, 255, 0.15);
+                  padding: 20px;
+                  border-radius: 10px;
+                  border: 1px solid rgba(255, 255, 255, 0.2);
+              }
+              .info-card h3 {
+                  margin-top: 0;
+                  color: #ffd700;
+                  border-bottom: 2px solid #ffd700;
+                  padding-bottom: 10px;
+              }
+              .status {
+                  display: inline-block;
+                  padding: 5px 15px;
+                  background: #28a745;
+                  border-radius: 20px;
+                  font-weight: bold;
+                  margin-left: 10px;
+              }
+              .footer {
+                  text-align: center;
+                  margin-top: 40px;
+                  padding-top: 20px;
+                  border-top: 1px solid rgba(255, 255, 255, 0.3);
+                  opacity: 0.8;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <h1>🏠 RX2530 Home Server</h1>
+              <p style="text-align: center; font-size: 1.2em;">
+                  nginx Container <span class="status">稼働中</span>
+              </p>
+              
+              <div class="info-grid">
+                  <div class="info-card">
+                      <h3>🖥️ サーバー情報</h3>
+                      <p><strong>ホスト:</strong> RX2530 Home Server</p>
+                      <p><strong>OS:</strong> Ubuntu 25.04 LTS</p>
+                      <p><strong>Web Server:</strong> nginx</p>
+                      <p><strong>コンテナタイプ:</strong> LXD Container</p>
+                  </div>
+                  
+                  <div class="info-card">
+                      <h3>⚙️ リソース情報</h3>
+                      <p><strong>CPU:</strong> 1 Core</p>
+                      <p><strong>メモリ:</strong> 1 GiB</p>
+                      <p><strong>ポート:</strong> 8000 (Host) → 80 (Container)</p>
+                      <p><strong>プロトコル:</strong> HTTP</p>
+                  </div>
+                  
+                  <div class="info-card">
+                      <h3>🌐 サービス概要</h3>
+                      <p><strong>目的:</strong> Webサーバーテスト環境</p>
+                      <p><strong>管理:</strong> Terraform + LXD</p>
+                      <p><strong>監視:</strong> 統合監視システム対応</p>
+                      <p><strong>バックアップ:</strong> 自動化設定済み</p>
+                  </div>
+                  
+                  <div class="info-card">
+                      <h3>📊 Infrastructure as Code</h3>
+                      <p><strong>プロビジョニング:</strong> Terraform</p>
+                      <p><strong>設定管理:</strong> Cloud-init</p>
+                      <p><strong>シークレット管理:</strong> SOPS</p>
+                      <p><strong>CI/CD:</strong> GitHub Actions (Self-hosted)</p>
+                  </div>
+              </div>
+              
+              <div class="footer">
+                  <p>🚀 Powered by LXD, Terraform, and nginx</p>
+                  <p>Last updated: <script>document.write(new Date().toLocaleString('ja-JP'));</script></p>
+              </div>
+          </div>
+      </body>
+      </html>
+    permissions: '0644'
+    owner: root:root
+
+runcmd:
+  # Configure nginx
+  - systemctl enable nginx
+  - systemctl start nginx
+  
+  # Remove default nginx site
+  - rm -f /etc/nginx/sites-enabled/default
+  
+  # Create custom nginx configuration
+  - |
+    cat > /etc/nginx/sites-available/default << 'EOF'
+    server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        
+        root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        
+        server_name _;
+        
+        location / {
+            try_files $uri $uri/ =404;
+        }
+        
+        # Security headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "no-referrer-when-downgrade" always;
+        add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+        
+        # Hide nginx version
+        server_tokens off;
+    }
+    EOF
+  
+  # Enable the site
+  - ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+  
+  # Test nginx configuration
+  - nginx -t
+  
+  # Reload nginx
+  - systemctl reload nginx
+  
+  # Set proper permissions
+  - chown -R www-data:www-data /var/www/html
+  - chmod -R 755 /var/www/html
+
+final_message: "nginx container setup completed successfully"
