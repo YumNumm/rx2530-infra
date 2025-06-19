@@ -434,4 +434,13 @@ resource "lxd_instance" "github_actions_runner" {
   timeouts         = null
   type             = "container"
   wait_for_network = true
+  device {
+    name = "http"
+    type = "proxy"
+    properties = {
+      bind    = "instance"
+      listen  = "tcp:0.0.0.0:443"
+      connect = "tcp:127.0.0.1:443"
+    }
+  }
 }
