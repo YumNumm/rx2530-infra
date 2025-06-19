@@ -10,12 +10,6 @@ on:
       - opened
       - synchronize
   workflow_dispatch:
-    inputs:
-      target:
-        description: "Terraformを実行するtarget (terraform/配下のディレクトリ名をカンマ区切りで指定)"
-        required: true
-        type: string
-        default: "supabase"
 
 permissions:
   contents: read
