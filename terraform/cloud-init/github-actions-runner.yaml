@@ -1,0 +1,59 @@
+#cloud-config
+
+apt:
+  sources:
+    fish-shell:
+      source: ppa:fish-shell/release-4
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - apt-transport-https
+  - curl
+  - software-properties-common
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - language-pack-ja-base
+  - language-pack-ja
+  - fish
+
+runcmd:
+  # Install docker
+  - install -m 0755 -d /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  - systemctl enable docker
+  - systemctl start docker
+
+  # GitHub Actions Runnerのセットアップ
+  - mkdir -p /home/yumnumm/actions-runner
+  - cd /home/yumnumm/actions-runner
+  - curl -o actions-runner-linux-x64-2.325.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.325.0/actions-runner-linux-x64-2.325.0.tar.gz
+  - tar xzf ./actions-runner-linux-x64-2.325.0.tar.gz
+  - chown -R yumnumm:yumnumm /home/yumnumm/actions-runner
+
+  # Runnerの設定と起動（systemdサービスとして登録）
+  #- >-
+  #  sudo -H -u yumnumm bash -c "cd /home/yumnumm/actions-runner &&
+  #  ./config.sh --url https://github.com/YumNumm/rx2530-infra --token [TOKEN]"
+  #- cd /home/yumnumm/actions-runner
+  #- sudo ./svc.sh install yumnumm
+  #- sudo ./svc.sh start
+
+timezone: Asia/Tokyo
+locale: ja_JP.UTF-8
+
+users:
+  - name: yumnumm
+    groups: sudo,docker
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_import_id: github:yumnumm
+
+
+final_message: "GitHub Actions Runner setup completed successfully"
