@@ -409,3 +409,29 @@ resource "lxd_instance" "tv" {
     type = "usb"
   }
 }
+
+resource "lxd_instance" "github_actions_runner" {
+  allow_restart = false
+  config = {
+    "raw.idmap"        = "both 1000 1000"
+    "security.nesting" = "true"
+    "cloud-init.user-data"   = file("${path.module}/cloud-init/github-actions-runner.yaml")
+  }
+  description = "GitHub Actions self-hosted runner"
+  ephemeral   = false
+  execs       = null
+  image       = "ubuntu:25.04"
+  limits = {
+    cpu    = "8"
+    memory = "8GiB"
+  }
+  name             = "github-actions-runner"
+  profiles         = ["default"]
+  project          = null
+  remote           = null
+  running          = true
+  target           = null
+  timeouts         = null
+  type             = "container"
+  wait_for_network = true
+}
