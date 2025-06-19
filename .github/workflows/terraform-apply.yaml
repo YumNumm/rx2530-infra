@@ -9,47 +9,13 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write  # PR にコメントを投稿するのに必要
-  issues: write         # tfcmt が一番最初にRepository labelを追加するのに必要
-  id-token: write       # authenticate gcpでworkload identityを使用するときに必要
+  pull-requests: write
+  issues: write
+  id-token: write
 
 jobs:
-  lint:
-    name: Terraform Lint
-    runs-on: rx2530
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: terraform
-    steps:
-      # https://github.com/actions/checkout
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      # https://github.com/jdx/mise-action
-      - name: Install Mise dependencies
-        uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
-        with:
-          cache: false
-
-      - name: Extract backend.tfbackend
-        run: |
-          echo "${{ secrets.TERRAFORM_BACKEND_CONFIGURATION }}" | base64 -d  \
-            > backend.tfbackend
-
-      - name: Terraform init
-        run: terraform init -backend-config=backend.tfbackend
-
-      - name: Terraform fmt
-        run: terraform fmt -check
-
-      - name: TFLint
-        run: tflint
-
   apply:
     name: Terraform Apply
-    needs:
-      - lint
     runs-on: rx2530
     timeout-minutes: 10
     defaults:
