@@ -1,5 +1,6 @@
 [tools]
 "aqua:suzuki-shunsuke/tfcmt" = "latest"
+pnpm = "latest"
 sops = "3.10.2"
 terraform = "1.12.2"
 tflint = "0.58.0"
