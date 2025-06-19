@@ -52,19 +52,20 @@ jobs:
       - name: TFLint
         run: tflint
 
+      # 変更が発生した場合は プルリクエストを作成
       # https://github.com/peter-evans/create-pull-request
-      - name: Create PR for update Terraform
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+      - name: Create or update pull request
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         if: failure()
-        id: cpr
         with:
           delete-branch: true
-          base: ${{ github.base_ref }}
-          commit-message: "chore: Auto Format: ${{ github.base_ref }}"
+          commit-message: "Auto format"
           committer: "GitHub Actions <noreply@github.com>"
+          base: ${{ github.head_ref }}
+          branch: "auto-format/${{ github.head_ref }}"
           title: "Auto Format: ${{ github.base_ref }}"
           body: "Auto Format: ${{ github.base_ref }} by GitHub Actions\nby: ${{github.actor}}"
-          labels: "Auto Update"
+          labels: "Auto Format"
           reviewers: ${{ github.actor }}
 
   plan:
