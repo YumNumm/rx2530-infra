@@ -51,20 +51,16 @@ jobs:
         run: tflint
 
   plan:
-    name: Terraform Plan (${{ matrix.target }})
+    name: Terraform Plan
     needs:
       - lint
-      - define-matrix
     runs-on: github-actions-runner
     env:
       MISE_ENV: ci
     timeout-minutes: 10
-    strategy:
-      matrix:
-        target: ${{ fromJson(needs.define-matrix.outputs.targets) }}
     defaults:
       run:
-        working-directory: terraform/${{ matrix.target }}
+        working-directory: terraform
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
