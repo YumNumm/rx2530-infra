@@ -335,6 +335,15 @@ resource "lxd_instance" "sandbox" {
     }
     type = "disk"
   }
+   device {
+    name = "ftp"
+    type = "proxy"
+    properties = {
+      bind    = "instance"
+      listen  = "tcp:0.0.0.0:23"
+      connect = "tcp:0.0.0.0:23"
+    }
+  }
 }
 
 
