@@ -477,3 +477,29 @@ resource "lxd_instance" "nginx" {
     }
   }
 }
+
+resource "lxd_instance" "common" {
+  allow_restart = false
+  config = {
+    "raw.idmap"            = "both 1000 1000"
+    "security.nesting"     = "true"
+    "cloud-init.user-data" = file("${path.module}/cloud-init/common.yaml")
+  }
+  description = "Common instance with basic setup"
+  ephemeral   = false
+  execs       = null
+  image       = "ubuntu:24.04"
+  limits = {
+    cpu    = "4"
+    memory = "4GiB"
+  }
+  name             = "common"
+  profiles         = ["default"]
+  project          = null
+  remote           = null
+  running          = true
+  target           = null
+  timeouts         = null
+  type             = "container"
+  wait_for_network = true
+}
