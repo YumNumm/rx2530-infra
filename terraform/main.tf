@@ -335,7 +335,7 @@ resource "lxd_instance" "sandbox" {
     }
     type = "disk"
   }
-   device {
+  device {
     name = "ftp"
     type = "proxy"
     properties = {
