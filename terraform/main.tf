@@ -328,10 +328,19 @@ resource "lxd_instance" "sandbox" {
     type = "disk"
   }
   device {
-    name = "disk-device-4"
+    name = "ftp"
+    type = "proxy"
     properties = {
-      path   = "/home/yumnumm/wikijs"
-      source = "/mnt/HDD/container/wikijs"
+      bind    = "instance"
+      listen  = "tcp:0.0.0.0:23"
+      connect = "tcp:0.0.0.0:23"
+    }
+  }
+  device {
+    name = "disk-device-5"
+    properties = {
+      path   = "/home/yumnumm/HDD"
+      source = "/mnt/HDD/"
     }
     type = "disk"
   }
