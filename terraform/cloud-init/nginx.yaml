@@ -1,0 +1,143 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - nginx
+  - curl
+  - wget
+  - htop
+  - language-pack-ja-base
+  - language-pack-ja
+
+timezone: Asia/Tokyo
+locale: ja_JP.UTF-8
+
+users:
+  - name: yumnumm
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_import_id: github:yumnumm
+
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      <!DOCTYPE html>
+      <html lang="ja">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>RX2530 ホームサーバー - nginx</title>
+          <style>
+              body {
+                  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                  margin: 0;
+                  padding: 40px;
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  color: white;
+                  min-height: 100vh;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+              }
+              .container {
+                  max-width: 800px;
+                  background: rgba(255, 255, 255, 0.1);
+                  backdrop-filter: blur(10px);
+                  border-radius: 20px;
+                  padding: 40px;
+                  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+                  border: 1px solid rgba(255, 255, 255, 0.18);
+              }
+              h1 {
+                  text-align: center;
+                  font-size: 2.5em;
+                  margin-bottom: 20px;
+                  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+              }
+              .server-info {
+                  background: rgba(0, 0, 0, 0.2);
+                  padding: 20px;
+                  border-radius: 10px;
+                  margin: 20px 0;
+              }
+              .info-row {
+                  display: flex;
+                  justify-content: space-between;
+                  margin: 10px 0;
+                  padding: 8px 0;
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+              }
+              .info-row:last-child {
+                  border-bottom: none;
+              }
+              .label {
+                  font-weight: bold;
+              }
+              .status {
+                  color: #4ade80;
+                  font-weight: bold;
+              }
+              .description {
+                  text-align: center;
+                  margin-top: 20px;
+                  font-size: 1.1em;
+                  line-height: 1.6;
+              }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <h1>🏠 RX2530 ホームサーバー</h1>
+              <div class="description">
+                  <p>Welcome to the RX2530 Home Server Infrastructure</p>
+                  <p>このサーバーはLXDコンテナ上で動作するnginxサービスです</p>
+              </div>
+              
+              <div class="server-info">
+                  <h2>📊 サーバー情報</h2>
+                  <div class="info-row">
+                      <span class="label">サービス:</span>
+                      <span>nginx Web Server</span>
+                  </div>
+                  <div class="info-row">
+                      <span class="label">OS:</span>
+                      <span>Ubuntu 25.04 LTS</span>
+                  </div>
+                  <div class="info-row">
+                      <span class="label">リソース:</span>
+                      <span>CPU: 1 core, Memory: 1GiB</span>
+                  </div>
+                  <div class="info-row">
+                      <span class="label">ポート:</span>
+                      <span>0.0.0.0:8000</span>
+                  </div>
+                  <div class="info-row">
+                      <span class="label">ステータス:</span>
+                      <span class="status">🟢 Running</span>
+                  </div>
+                  <div class="info-row">
+                      <span class="label">管理:</span>
+                      <span>Terraform + LXD</span>
+                  </div>
+              </div>
+              
+              <div class="description">
+                  <p>🎯 Infrastructure as Code による自動管理</p>
+                  <p>🔧 LXDコンテナで軽量・高効率運用</p>
+                  <p>🌐 ホームラボ環境での各種サービス提供</p>
+              </div>
+          </div>
+      </body>
+      </html>
+    permissions: '0644'
+    owner: root:root
+
+runcmd:
+  - systemctl enable nginx
+  - systemctl start nginx
+  - systemctl status nginx
+
+final_message: "nginx container setup completed successfully"
