@@ -1,0 +1,47 @@
+#cloud-config
+
+apt:
+  sources:
+    fish-shell:
+      source: ppa:fish-shell/release-4
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - wget
+  - git
+  - htop
+  - unzip
+  - software-properties-common
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - language-pack-ja-base
+  - language-pack-ja
+  - fish
+
+timezone: Asia/Tokyo
+locale: ja_JP.UTF-8
+
+users:
+  - name: yumnumm
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_import_id: github:yumnumm
+
+runcmd:
+  # install fisher
+  - >-
+    sudo -H -u yumnumm fish -c
+      "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source &&
+      fisher install jorgebucaran/fisher"
+  # install fisher plugin: tide
+  - >-
+    sudo -H -u yumnumm fish -c
+      "fisher install IlanCosman/tide@v6"
+
+final_message: "Cloud-init setup completed successfully"
