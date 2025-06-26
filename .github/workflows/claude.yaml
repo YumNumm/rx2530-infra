@@ -37,14 +37,14 @@ jobs:
 
       # https://github.com/jdx/mise-action
       - name: Install Mise dependencies
-        uses: jdx/mise-action@13abe502c30c1559a5c37dff303831bab82c9402 # v2.2.3
+        uses: jdx/mise-action@5cb1df66ed5e1fb3c670ea0b62fd17a76979826a # v2.3.1
         with:
           cache: false
 
       # https://github.com/anthropics/claude-code-action
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@3486c33ebfa03d71c98e72621759471c45388443 # v0.0.22
+        uses: anthropics/claude-code-action@ece712ea816f4853a4c2ebb2455f60c24a5c704c # v0.0.25
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           timeout_minutes: 10
